@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "797413686472",
+    "project_id": "borderbuddy-7e1fb",
+    "storage_bucket": "borderbuddy-7e1fb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:797413686472:android:2ed144b89c1f79b6c539fd",
+        "android_client_info": {
+          "package_name": "com.company.borderbuddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIT0QuZJ7f6L2p85u0Bcpj7EGJAbN65_c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

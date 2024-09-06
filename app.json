@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "BorderBuddy",
+    "slug": "BorderBuddy",
+    "version": "1.0.0",
+    "jsEngine": "hermes",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "permissions": [
+      "CAMERA_ROLL"
+    ],
+    "packagerOpts": {
+      "host": "192.168.233.208"
+    }
+  }
+}
