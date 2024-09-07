@@ -7,8 +7,10 @@ import LoginScreen from '../screens/Profiling/LoginScreen';
 import ForgotPasswordScreen from '../screens/Profiling/ForgotPasswordScreen';
 import SignUpScreen from '../screens/Profiling/SignUpScreen';
 import ProfileScreen, { BackArrow } from '../screens/Profiling/ProfileScreen';
-
-
+import TripsDashboard from '../screens/TravelManagement/TripsDashboard';
+import CreateTripPlan from '../screens/TravelManagement/CreateTripPlan';
+import DealsScreen from "../screens/TravelManagement/DealsScreen";
+import MatchingShipmentsScreen from "../screens/TravelManagement/MatchingShipmentsScreen";
 import { Ionicons } from '@expo/vector-icons';
 import * as Font from 'expo-font';
 import { View } from "react-native";
@@ -77,7 +79,26 @@ function AppNavigation() {
                     component={ProfileScreen}
                     options={{ headerShown: false, headerBackVisible: false }}
                 />
-
+                 <Stack.Screen
+                    name="TripsDashboard"
+                    component={TripsDashboard}
+                    options={{ headerShown: false, headerBackVisible: false }}
+                />
+                <Stack.Screen
+                    name="CreateTripPlan"
+                    component={CreateTripPlan}
+                    options={{ headerShown: false, headerBackVisible: false }}
+                />
+                <Stack.Screen
+                    name="DealsScreen"
+                    component={DealsScreen}
+                    options={{ headerShown: false, headerBackVisible: false }}
+                />
+                <Stack.Screen
+                    name="MatchingShipmentsScreen"
+                    component={MatchingShipmentsScreen}
+                    options={{ headerShown: false, headerBackVisible: false }}
+                />
 
             </Stack.Navigator>
         

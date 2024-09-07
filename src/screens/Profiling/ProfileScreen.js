@@ -226,20 +226,23 @@ const ProfileScreen = ({ navigation }) => {
         </TouchableOpacity>
       )}
       {/*  Bottom Tab*/ }
-       <View style={styles.bottomTab}>
-        <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('ProfileScreen')}>
-          <Icon name="home" size={35} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('ProfileScreen')}>
-          <Icon name="shopping-bag" size={35} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('ProfileScreen')}>
-          <Icon name="person" size={35} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('ProfileScreen')}>
-          <Icon name="airplanemode-on" size={35} color="#fff" />
-        </TouchableOpacity>
-      </View> 
+      <View style={styles.bottomTab}>
+                <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('ProfileScreen')}>
+                    <Icon name="home" size={35} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('ProfileScreen')}>
+                    <Icon name="shopping-bag" size={35} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('TripsDashboard')}>
+                    <Icon name="luggage" size={35} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.tabButton}>
+                    <Icon name="email" size={35} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('ProfileScreen')}>
+                    <Icon name="person" size={35} color="#fff" />
+                </TouchableOpacity>
+            </View>
     </View>
   );
 };
