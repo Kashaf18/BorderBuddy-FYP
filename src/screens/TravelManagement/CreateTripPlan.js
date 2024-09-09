@@ -7,7 +7,9 @@ import axios from 'axios';
 import { FontFamily, Color } from '../../assets/GlobalStyles';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from 'moment'; 
-
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../../firebaseConfig';
+import { addDoc, collection } from 'firebase/firestore';
 
 const BackArrow = ({ navigation }) => {
   return (
@@ -32,9 +34,39 @@ const CreateTripPlan = ({ navigation }) => {
   const [categories, setCategories] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
-
- 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const handleAddTrip = async () => {
+    // Check if any of the required fields are empty
+    if (!fromLocation || !toLocation || !availableWeight || !departureDate || !departureTime || !firstName || !lastName || !categories) {
+      alert('Please fill all the input fields');
+      return; // Stop the function if validation fails
+    }
+  
+    try {
+      const tripData = {
+        fromLocation,
+        toLocation,
+        availableWeight,
+        departureDate,
+        departureTime,
+        firstName,
+        lastName,
+        categories,
+        additionalInfo,
+      };
+  
+      const tripRef = doc(db, 'trips', `${firstName}_${lastName}_${new Date().getTime()}`);
+      await setDoc(tripRef, tripData);
+  
+      navigation.navigate('TripsDashboard');
+      alert('Trip added successfully!');
+    } catch (error) {
+      console.error('Error adding trip: ', error);
+      alert('Failed to add trip, please try again.');
+    }
+  };
+  
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -260,7 +292,6 @@ return (
           />
         </View>
 
-        
          {/* Departure Date */}
          <TouchableOpacity onPress={showDatePicker} style={styles.inputContainer}>
           
@@ -354,8 +385,8 @@ return (
             multiline
           />
         </View>
-        {/* Add Trip Button */}
-        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('TripsDashboard')}>
+          {/* Add Trip Button */}
+          <TouchableOpacity style={styles.addButton} onPress={handleAddTrip}>
           <Text style={styles.addButtonText}>Add Trip</Text>
         </TouchableOpacity>
         </ScrollView>
