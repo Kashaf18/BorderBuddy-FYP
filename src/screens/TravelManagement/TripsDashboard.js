@@ -1,18 +1,86 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, FlatList, Image, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { FontFamily, Color } from '../../assets/GlobalStyles';
 import { Ionicons } from '@expo/vector-icons';
 import TripCard from './TripCard';
-
+import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../../firebaseConfig';
+import EditTripModal from './EditTripModal'; 
 
 const TripsDashboard = ({ navigation }) => {
-    const trips = [
-        { from: 'New York', to: 'Dubai', availableWeight: 20, consumedWeight: 5, departureDate: '2024-05-25', departureTime: '10:00 AM', firstName: 'John', lastName: 'Doe' },
-        { from: 'Chicago', to: 'Miami', availableWeight: 15, consumedWeight: 10, departureDate: '2024-06-01', departureTime: '02:00 PM', firstName: 'Jane', lastName: 'Smith' },
-        { from: 'Milan', to: 'Dubai', availableWeight: 15, consumedWeight: 10, departureDate: '2024-06-01', departureTime: '02:00 PM', firstName: 'Jane', lastName: 'Smith' },
-        // Add more trips as needed
-    ];
+    const [trips, setTrips] = useState([]);
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [tripToEdit, setTripToEdit] = useState(null);
+
+    
+    useEffect(() => {
+        const fetchTrips = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "trips"));
+                const tripsData = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setTrips(tripsData);
+            } catch (error) {
+                console.error("Error fetching trips: ", error);
+            }
+        };
+
+        fetchTrips();
+    }, []);
+
+    const confirmDelete = (tripId) => {
+        Alert.alert(
+            "Delete Trip",
+            "Are you sure you want to delete this trip?",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => console.log("Deletion cancelled"),
+                    style: "cancel"
+                },
+                {
+                    text: "Yes", onPress: () => handleRemove(tripId)
+                }
+            ]
+        );
+    };
+
+   
+    const handleRemove = async (tripId) => {
+        try {
+            await deleteDoc(doc(db, 'trips', tripId));
+            setTrips(trips.filter(trip => trip.id !== tripId)); 
+        } catch (error) {
+            console.error("Error deleting trip: ", error);
+        }
+    };
+
+   
+    const handleEdit = (trip) => {
+        setTripToEdit(trip);
+        setModalVisible(true);
+    };
+
+    
+    const handleCloseModal = () => {
+        setModalVisible(false);
+        setTripToEdit(null);
+    };
+
+   
+    const handleUpdate = async (tripId, updatedData) => {
+        try {
+            await updateDoc(doc(db, 'trips', tripId), updatedData);
+           
+            setTrips(trips.map(trip => (trip.id === tripId ? { ...trip, ...updatedData } : trip)));
+            handleCloseModal();
+        } catch (error) {
+            console.error("Error updating trip: ", error);
+        }
+    };
 
     return (
         <KeyboardAvoidingView
@@ -32,11 +100,24 @@ const TripsDashboard = ({ navigation }) => {
                         <Text style={styles.buttonText}>Deals</Text>
                     </TouchableOpacity>
                 </View>
-                {trips.map((trip, index) => (
-                    <View key={index} style={styles.container2}>
-                        <TripCard trip={trip} />
-                    </View>
-                ))}
+               
+                {trips.length > 0 ? (
+                    <FlatList
+                        data={trips}
+                        keyExtractor={item => item.id}
+                        renderItem={({ item }) => (
+                            <View key={item.id} style={styles.container2}>
+                                <TripCard 
+                                    trip={item} 
+                                    handleRemove={() => confirmDelete(item.id)} 
+                                    handleEdit={() => handleEdit(item)} 
+                                />
+                            </View>
+                        )}
+                    />
+                ) : (
+                    <Text style={styles.noTripsText}>No trips available</Text>
+                )}
             </ScrollView>
 
             <View style={styles.addContainer}>
@@ -44,6 +125,7 @@ const TripsDashboard = ({ navigation }) => {
                     <Ionicons name="add-circle-sharp" size={48} color="#ED6C30" style={styles.add} />
                 </TouchableOpacity>
             </View>
+
             {/* Bottom Tab */}
             <View style={styles.bottomTab}>
                 <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('ProfileScreen')}>
@@ -62,6 +144,17 @@ const TripsDashboard = ({ navigation }) => {
                     <Icon name="person" size={35} color="#fff" />
                 </TouchableOpacity>
             </View>
+
+          
+            {tripToEdit && (
+                <EditTripModal
+                    visible={isModalVisible}
+                    onClose={handleCloseModal}
+                    tripId={tripToEdit.id}
+                    tripData={tripToEdit}
+                    onSave={(updatedData) => handleUpdate(tripToEdit.id, updatedData)}
+                />
+            )}
         </KeyboardAvoidingView>
     );
 };
@@ -72,26 +165,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     scrollContainer: {
-        paddingBottom: 100, // Ensure space for the bottom tab
+        paddingBottom: 100, 
     },
     topImage: {
         width: 153,
         height: 198,
         marginLeft: 260,
         marginRight: 'auto',
-    },
-    backIcon: {
-        width: 24,
-        height: 24,
-        resizeMode: 'contain',
-        marginBottom: 5,
-    },
-    backButton: {
-        padding: 10,
-        position: 'absolute',
-        top: 100, // Adjust this value to position the back button properly
-        left: 20,
-        marginBottom: 5,
     },
     heading: {
         fontSize: 24,
@@ -115,14 +195,11 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: -10,
     },
-    tripCard: {
-        alignItems: "flex-start",
-    },
     container2: {
         flex: 1,
-        justifyContent: 'flex-start', // Align content at the top
+        justifyContent: 'flex-start', 
         padding: 20,
-        marginBottom: -20, // Reduce the margin between cards
+        marginBottom: -20, 
     },
     addContainer: {
         position: 'absolute',
@@ -139,12 +216,11 @@ const styles = StyleSheet.create({
     },
     MatchingButton: {
         backgroundColor: '#fff',
-        borderRadius:
-            20,
+        borderRadius: 20,
         paddingHorizontal: 20,
         paddingVertical: 10,
-        borderWidth: 1, // Set border width
-        borderColor: '#C5C0C0', // Set border color
+        borderWidth: 1, 
+        borderColor: '#C5C0C0', 
         marginLeft: 10,
     },
     DealsButton: {
@@ -153,14 +229,20 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 10,
         marginLeft: -85,
-        borderWidth: 1, // Set border width
-        borderColor: '#C5C0C0', // Set border color
+        borderWidth: 1, 
+        borderColor: '#C5C0C0', 
     },
     buttonText: {
         color: '#000',
         fontSize: 12,
         fontFamily: FontFamily.poppinsMedium,
     },
+    noTripsText: {
+        textAlign: 'center',
+        fontSize: 16,
+        color: '#888',
+        marginTop: 20,
+    }
 });
 
 export default TripsDashboard;

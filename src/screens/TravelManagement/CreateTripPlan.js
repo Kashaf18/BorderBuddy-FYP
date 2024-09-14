@@ -37,10 +37,10 @@ const CreateTripPlan = ({ navigation }) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   const handleAddTrip = async () => {
-    // Check if any of the required fields are empty
+   
     if (!fromLocation || !toLocation || !availableWeight || !departureDate || !departureTime || !firstName || !lastName || !categories) {
       alert('Please fill all the input fields');
-      return; // Stop the function if validation fails
+      return; 
     }
   
     try {

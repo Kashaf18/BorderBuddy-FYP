@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     scrollContainer: {
-        paddingBottom: 100, // Ensure space for the bottom tab
+        paddingBottom: 100, 
     },
     topImage: {
         width: 153,

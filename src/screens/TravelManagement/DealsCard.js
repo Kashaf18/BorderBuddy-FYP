@@ -120,13 +120,13 @@ const styles = StyleSheet.create({
     },
     dealInfo: {
         flex: 1,
-        marginRight: 10, // Added margin to avoid overlapping with profile container
+        marginRight: 10, 
     },
     productName: {
         fontSize: 11,
         fontFamily: FontFamily.poppinsSemiBold,
         color: '#504F4F',
-        flexShrink: 1, // Prevents text from wrapping
+        flexShrink: 1,
     },
     iconTextContainer: {
         flexDirection: 'row',

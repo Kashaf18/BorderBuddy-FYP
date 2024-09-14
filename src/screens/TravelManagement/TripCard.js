@@ -2,14 +2,16 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { MaterialIcons, Ionicons, FontAwesome5, FontAwesome6, Entypo } from '@expo/vector-icons';
 import { FontFamily, Color } from '../../assets/GlobalStyles';
+import TripsDashboard from './TripsDashboard';
 
-const TripCard = ({ trip }) => (
+const TripCard = ({ trip, handleRemove, handleEdit }) => (
     <View style={styles.card}>
+
         <View style={styles.routeContainer}>
             <FontAwesome6 name="location-dot" size={24} color="#ED6C30" />
-            <Text style={styles.city1}>{trip.from}</Text>
+            <Text style={styles.city1}>{trip.fromLocation}</Text>
             <Ionicons name="airplane" size={28} color="#ED6C30" style={styles.iconPlane} />
-            <Text style={styles.city2}>{trip.to}</Text>
+            <Text style={styles.city2}>{trip.toLocation}</Text>
         </View>
         <View style={styles.routeContainer}>
             <Entypo name="back-in-time" size={24} color="#ED6C30" style={styles.icon} />
@@ -23,8 +25,8 @@ const TripCard = ({ trip }) => (
                 <Text style={styles.weightText}>Available Weight</Text>
             </View>
             <View style={styles.weightSubContainer}>
-                <FontAwesome5 name="weight-hanging" size={20} color="#ED6C30" style={styles.weightIcon} />
-                <Text style={styles.consumedWeightNum}>{trip.consumedWeight} KG</Text>
+            <FontAwesome5 name="weight-hanging" size={20} color="#ED6C30" style={styles.weightIcon} />
+                <Text style={styles.consumedWeightNum}>{trip.consumedWeight} 2 KG</Text>
                 <Text style={styles.consumedWeightText}>Consumed Weight</Text>
             </View>
         </View>
@@ -40,13 +42,16 @@ const TripCard = ({ trip }) => (
                 </View>
                 <Text style={styles.name}>{trip.firstName} {trip.lastName}</Text>
             </View>
-            <TouchableOpacity style={styles.removeButton}>
-                <Text style={styles.removeButtonText}>Remove</Text>
+            <TouchableOpacity style={styles.removeButton} onPress={() => handleRemove(trip.id)}>
+              <Text style={styles.removeButtonText}>Remove</Text>
             </TouchableOpacity>
             <View style={{ width: 10 }} />
-            <TouchableOpacity style={styles.editButton}>
-                <Text style={styles.editButtonText}>Edit</Text>
-            </TouchableOpacity>
+           <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(trip.id, { /* updated trip data */ })}>
+               <Text style={styles.editButtonText}>Edit</Text>
+           </TouchableOpacity>
+
+
+
         </View>
     </View>
 );
@@ -65,36 +70,46 @@ const styles = StyleSheet.create({
         elevation: 5,
         paddingBottom: 10,
         marginBottom: 0,
-        marginTop: 0, // Add or adjust this margin to control spacing
-       
+        marginTop: 0,
     },
     routeContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 15,
+        marginBottom: 10, 
         marginLeft: 10,
         marginTop: 10,
     },
     city1: {
-        fontWeight: 'bold',
-        fontSize: 18,
+        fontWeight: '600', 
+        fontSize: 14, 
         color: '#504F4F',
-        marginLeft: 19,
+        marginLeft: 12, 
         fontFamily: FontFamily.poppinsSemiBold,
+        flex: 1, 
+
+     
+       
+      
+       
     },
     iconPlane: {
-        flex: 1,
         textAlign: 'center',
-        marginRight: 90,
+        marginHorizontal: 10, 
+
+  
+       
     },
+   
+   
     city2: {
-        position: 'absolute',
-        right: 0,
-        fontWeight: 'bold',
-        fontSize: 18,
+        fontWeight: '600', 
+        fontSize: 14, 
         color: '#504F4F',
-        marginRight: 30,
+        marginRight: 10,
         fontFamily: FontFamily.poppinsSemiBold,
+        flex: 1, 
+        textAlign: 'right', 
+        
     },
     icon: {
         marginRight: 5,
@@ -217,5 +232,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
 });
+
 
 export default TripCard;

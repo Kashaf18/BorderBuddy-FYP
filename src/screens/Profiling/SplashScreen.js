@@ -4,10 +4,10 @@ import { FontFamily, FontSize, Color, Padding, Border } from '../../assets/Globa
 const { width, height } = Dimensions.get('window');
 
 const SplashScreen = ({ navigation }) => {
-    // Logging navigation prop
+   
     console.log('Navigation:', navigation);
 
-    // Logging assets and styles
+  
     console.log('TopImage:', require("../../assets/images/TopImage.png"));
     console.log('Arrow Image:', require("../../assets/images/imgArrowright.png"));
     console.log('FontFamily:', FontFamily);
@@ -17,7 +17,7 @@ const SplashScreen = ({ navigation }) => {
     console.log('Border:', Border);
 
     const onTapGetStarted = () => {
-        // Handle get started button press
+      
         navigation.navigate('LoginScreen');
     };
 

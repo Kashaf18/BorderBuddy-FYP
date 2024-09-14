@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { FontFamily, FontSize, Color } from '../../assets/GlobalStyles';
 import { useNavigation } from '@react-navigation/native';
 import { auth } from '../../firebaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth'; // Import signInWithEmailAndPassword
+import { signInWithEmailAndPassword } from 'firebase/auth'; 
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,18 +27,18 @@ const LoginScreen = ({ navigation }) => {
 
     console.log("Attempting Firebase login");
 
-    // Firebase authentication logic using modular SDK
+   
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Successful login
+       
         const user = userCredential.user;
         console.log("Login successful, user UID: ", user.uid);
-        navigation.navigate('ProfileScreen'); // Navigate to ProfileScreen on success
+        navigation.navigate('ProfileScreen'); 
       })
       .catch((error) => {
-        // Handle errors here
+       
         console.error("Login failed: ", error.message);
-        Alert.alert("Login Error", error.message); // Display error message
+        Alert.alert("Login Error", error.message); 
       });
   };
 

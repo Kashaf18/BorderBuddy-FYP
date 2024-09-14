@@ -30,24 +30,24 @@ const ProfileScreen = ({ navigation }) => {
     const fetchUserData = async () => {
       try {
         const user = auth.currentUser;
-        console.log("Current user:", user); // Log current user
+        console.log("Current user:", user); 
         if (user) {
           const docRef = doc(db, 'users', user.uid);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const userData = docSnap.data();
-            console.log("Fetched user data:", userData); // Log fetched data
+            console.log("Fetched user data:", userData); 
             setUsername(userData.name || '');
             setEmail(userData.email || '');
             setContactNumber(userData.contactNumber || '');
             setAddress(userData.address || '');
             setProfilePicture(userData.profilePicture || null);
           } else {
-            console.log("No user data found"); // Log when no data is found
+            console.log("No user data found"); 
           }
         }
       } catch (error) {
-        console.error("Error fetching user data:", error); // Log error
+        console.error("Error fetching user data:", error); 
       }
     };
 
@@ -56,7 +56,7 @@ const ProfileScreen = ({ navigation }) => {
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    console.log("Image picker permission status:", status); // Log permission status
+    console.log("Image picker permission status:", status); 
     if (status !== 'granted') {
       Alert.alert('Permission Denied', 'Permission to access gallery is required.');
       return;
@@ -69,7 +69,7 @@ const ProfileScreen = ({ navigation }) => {
       quality: 1,
     });
 
-    console.log("Image picker result:", result); // Log selected image result
+    console.log("Image picker result:", result); 
 
     if (!result.canceled) {
       setProfilePicture(result.assets[0].uri);
@@ -85,16 +85,16 @@ const ProfileScreen = ({ navigation }) => {
     try {
       const response = await fetch(profilePicture);
       const blob = await response.blob();
-      console.log("Uploading image to Firebase"); // Log before uploading
+      console.log("Uploading image to Firebase"); 
 
       const storageRef = ref(storage, `profilePictures/${user.uid}`);
       await uploadBytes(storageRef, blob);
 
       const downloadURL = await getDownloadURL(storageRef);
-      console.log("Image uploaded successfully, URL:", downloadURL); // Log the download URL
+      console.log("Image uploaded successfully, URL:", downloadURL); 
       return downloadURL;
     } catch (error) {
-      console.error("Error uploading image:", error); // Log upload error
+      console.error("Error uploading image:", error);
       return null;
     }
   };
@@ -104,7 +104,7 @@ const ProfileScreen = ({ navigation }) => {
       const user = auth.currentUser;
       if (user) {
         const profilePictureURL = await uploadImageToFirebase();
-        console.log("Profile picture URL:", profilePictureURL); // Log picture URL or null
+        console.log("Profile picture URL:", profilePictureURL); 
 
         const docRef = doc(db, 'users', user.uid);
         await updateDoc(docRef, {
@@ -112,18 +112,18 @@ const ProfileScreen = ({ navigation }) => {
           email,
           contactNumber,
           address,
-          profilePicture: profilePictureURL || profilePicture, // Use existing if upload fails
+          profilePicture: profilePictureURL || profilePicture, 
         });
 
         Alert.alert('Success', 'Your profile has been updated.');
-        console.log("Profile updated successfully"); // Log successful update
+        console.log("Profile updated successfully"); 
         setEditingUsername(false);
         setEditingEmail(false);
         setEditingContactNumber(false);
         setEditingAddress(false);
       }
     } catch (error) {
-      console.error("Error updating user data:", error); // Log update error
+      console.error("Error updating user data:", error); 
       Alert.alert('Error', 'An error occurred while updating your profile.');
     }
   };

@@ -4,13 +4,13 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { FontFamily, FontSize, Color } from '../../assets/GlobalStyles';
 import { auth } from '../../firebaseConfig';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { LogBox } from 'react-native'; // For logging
+import { LogBox } from 'react-native'; 
 
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
 
   const handleForgotPassword = () => {
-    LogBox.ignoreLogs(['Sending password reset email...']); // To avoid duplicate log warnings
+    LogBox.ignoreLogs(['Sending password reset email...']); 
     if (!email) {
       Alert.alert('Error', 'Please enter your email address.');
       console.log('Error: Email field is empty');
@@ -21,12 +21,12 @@ const ForgotPasswordScreen = ({ navigation }) => {
     
     sendPasswordResetEmail(auth, email)
       .then(() => {
-        // Email sent
+       
         Alert.alert('Success', 'If the email address is registered, you will receive a password reset link.');
         console.log('Password reset email sent successfully to:', email);
       })
       .catch((error) => {
-        // Handle Errors here
+        
         const errorCode = error.code;
         let errorMessage;
 
