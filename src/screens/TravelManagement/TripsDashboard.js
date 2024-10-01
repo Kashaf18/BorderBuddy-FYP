@@ -7,7 +7,7 @@ import TripCard from './TripCard';
 import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import EditTripModal from './EditTripModal'; 
-import PickupAvailabilityModal from './PickupAvailabilityModal'; // Adjust if necessary
+
 
 
 const TripsDashboard = ({ navigation }) => {
