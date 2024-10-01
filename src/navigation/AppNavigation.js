@@ -10,6 +10,8 @@ import ProfileScreen, { BackArrow } from '../screens/Profiling/ProfileScreen';
 import TripsDashboard from '../screens/TravelManagement/TripsDashboard';
 import CreateTripPlan from '../screens/TravelManagement/CreateTripPlan';
 import DealsScreen from "../screens/TravelManagement/DealsScreen";
+import MeetingPointsModal from '../screens/TravelManagement/MeetingPointsModal';
+import TripInfoScreen from '../screens/TravelManagement/TripInfoScreen';
 import MatchingShipmentsScreen from "../screens/TravelManagement/MatchingShipmentsScreen";
 import ReportTheft from "../screens/TheftHandling/ReportTheft";
 import GenerateReport from "../screens/TheftHandling/GenerateReport";
@@ -118,6 +120,10 @@ function AppNavigation() {
                     component={ConnectNearestPoliceStations}
                     options={{ headerShown: false, headerBackVisible: false }}
                 />
+                <Stack.Screen name="MeetingPoints" component={MeetingPointsModal}
+                 options={{ headerShown: false, headerBackVisible: false }} />
+                <Stack.Screen name="TripInfo" component={TripInfoScreen} 
+                 options={{ headerShown: false, headerBackVisible: false }}/>
 
             </Stack.Navigator>
         

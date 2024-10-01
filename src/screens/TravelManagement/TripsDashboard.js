@@ -4,34 +4,32 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { FontFamily, Color } from '../../assets/GlobalStyles';
 import { Ionicons } from '@expo/vector-icons';
 import TripCard from './TripCard';
-import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc,onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import EditTripModal from './EditTripModal'; 
-
-
+import DateSelectionModal from './DateSelectionModal'; 
+import MeetingPointsModal from './MeetingPointsModal';
 
 const TripsDashboard = ({ navigation }) => {
     const [trips, setTrips] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
     const [tripToEdit, setTripToEdit] = useState(null);
-    const [pickupModalVisible, setPickupModalVisible] = useState(false);
+    const [isDateModalVisible, setDateModalVisible] = useState(false);
     const [selectedTrip, setSelectedTrip] = useState(null);
-
+    const [isMeetingPointsModalVisible, setMeetingPointsModalVisible] = useState(false);
+    
     useEffect(() => {
-        const fetchTrips = async () => {
-            try {
-                const querySnapshot = await getDocs(collection(db, "trips"));
-                const tripsData = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                setTrips(tripsData);
-            } catch (error) {
-                console.error("Error fetching trips: ", error);
-            }
-        };
+        const unsubscribe = onSnapshot(collection(db, "trips"), (querySnapshot) => {
+            const tripsData = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setTrips(tripsData);
+        }, (error) => {
+            console.error("Error fetching trips: ", error);
+        });
 
-        fetchTrips();
+        return () => unsubscribe(); // Cleanup the listener on unmount
     }, []);
 
     const confirmDelete = (tripId) => {
@@ -72,24 +70,51 @@ const TripsDashboard = ({ navigation }) => {
 
     const handleUpdate = (tripId, updatedData) => {
         setTrips(trips.map(trip => (trip.id === tripId ? { ...trip, ...updatedData } : trip)));
-        handleCloseModal(); // Close the modal after saving
+        handleCloseModal();
     };
 
-    const handlePickupClick = (trip) => {
+    const handleTripClick = (trip) => {
         setSelectedTrip(trip);
-        setPickupModalVisible(true); // Show the pickup availability modal
+        setDateModalVisible(true); // Open the Date Selection Modal
+    };
+    
+    const handleDateSave = async (dates) => {
+        if (selectedTrip) {
+            try {
+                await updateDoc(doc(db, 'trips', selectedTrip.id), {
+                    pickupAvailability: {
+                        fromDate: dates.fromDate,
+                        toDate: dates.toDate
+                    }
+                });
+                setTrips(trips.map(trip => 
+                    trip.id === selectedTrip.id 
+                        ? { ...trip, pickupAvailability: { fromDate: dates.fromDate, toDate: dates.toDate } }
+                        : trip
+                ));
+            } catch (error) {
+                
+            }
+        }
+        setDateModalVisible(false); // Close the modal after saving
     };
 
-    const handleClosePickupModal = () => {
-        setPickupModalVisible(false);
-        setSelectedTrip(null);
-    };
-
-    const handleSavePickupDates = (tripId, dates) => {
-        // Logic to save pickup availability dates in Firebase
-        console.log('Saving pickup dates for trip:', tripId, dates);
-        Alert.alert('Pickup availability saved successfully!');
-        handleClosePickupModal(); // Close the modal after saving
+    const handleMeetingPointsSave = async (meetingPoints) => {
+        if (selectedTrip) {
+            try {
+                await updateDoc(doc(db, 'trips', selectedTrip.id), {
+                    meetingPoints: meetingPoints
+                });
+                setTrips(trips.map(trip => 
+                    trip.id === selectedTrip.id 
+                        ? { ...trip, meetingPoints: meetingPoints }
+                        : trip
+                ));
+            } catch (error) {
+                console.error("Error updating meeting points: ", error);
+            }
+        }
+        setMeetingPointsModalVisible(false); // Close the modal after saving
     };
 
     return (
@@ -116,14 +141,15 @@ const TripsDashboard = ({ navigation }) => {
                         data={trips}
                         keyExtractor={item => item.id}
                         renderItem={({ item }) => (
-                            <View key={item.id} style={styles.container2}>
-                                <TripCard 
-                                    trip={item} 
-                                    handleRemove={() => confirmDelete(item.id)} 
-                                    handleEdit={() => handleEdit(item)} 
-                                    handlePickup={() => handlePickupClick(item)} // Add pickup handler
-                                />
-                            </View>
+                            <TouchableOpacity onPress={() => handleTripClick(item)}>
+                                <View key={item.id} style={styles.container2}>
+                                    <TripCard 
+                                        trip={item} 
+                                        handleRemove={() => confirmDelete(item.id)} 
+                                        handleEdit={() => handleEdit(item)} 
+                                    />
+                                </View>
+                            </TouchableOpacity>
                         )}
                     />
                 ) : (
@@ -137,7 +163,6 @@ const TripsDashboard = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            {/* Bottom Tab */}
             <View style={styles.bottomTab}>
                 <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('ProfileScreen')}>
                     <Icon name="home" size={35} color="#fff" />
@@ -166,18 +191,22 @@ const TripsDashboard = ({ navigation }) => {
                 />
             )}
 
-            {selectedTrip && (
-                <PickupAvailabilityModal
-                    visible={pickupModalVisible}
-                    onClose={handleClosePickupModal}
-                    tripData={selectedTrip}
-                    onSave={handleSavePickupDates} 
-                />
-            )}
+            <DateSelectionModal
+                visible={isDateModalVisible}
+                onClose={() => setDateModalVisible(false)}
+                onSave={handleDateSave}
+                tripId={selectedTrip ? selectedTrip.id : null} // Pass tripId here
+            />
+            
+            <MeetingPointsModal
+                visible={isMeetingPointsModalVisible}
+                onClose={() => setMeetingPointsModalVisible(false)}
+                onSave={handleMeetingPointsSave}
+                toCity={selectedTrip ? selectedTrip.toCity : ''}
+            />
         </KeyboardAvoidingView>
     );
 };
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
