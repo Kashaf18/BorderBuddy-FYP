@@ -9,10 +9,18 @@
       "android"
     ],
     "permissions": [
-      "CAMERA_ROLL"
+      "CAMERA_ROLL",
+      "LOCATION",
+      "READ_EXTERNAL_STORAGE",
+      "WRITE_EXTERNAL_STORAGE",
+      "ACCESS_FINE_LOCATION"
     ],
     "packagerOpts": {
       "host": "192.168.233.208"
     }
-  }
+  
+  
 }
+
+  }
+

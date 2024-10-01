@@ -3,51 +3,80 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { MaterialIcons, Ionicons, FontAwesome5, FontAwesome6, Entypo } from '@expo/vector-icons';
 import { FontFamily, Color } from '../../assets/GlobalStyles';
 
-const DealsCard = ({ deal }) => (
-    <View style={styles.card}>
-        <View style={styles.routeContainer}>
-            <FontAwesome6 name="location-dot" size={24} color="#ED6C30" />
-            <Text style={styles.city1}>{deal.from}</Text>
-            <Ionicons name="airplane" size={28} color="#ED6C30" style={styles.iconPlane} />
-            <Text style={styles.city2}>{deal.to}</Text>
-        </View>
-        <View style={styles.routeContainer}>
-            <Entypo name="back-in-time" size={24} color="#ED6C30" style={styles.icon} />
-            <Text style={styles.date}>{deal.departureDate}</Text>
-        </View>
-        <View style={styles.line} />
-        <View style={styles.dealContainer}>
-            <Image
-                source={require("../../assets/images/Iphone13ProMax.png")}
-                style={styles.dealImage}
-            />
-            <View style={styles.dealInfo}>
-                <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">{deal.productName}</Text>
-                <View style={styles.iconTextContainer}>
-                    <FontAwesome5 name="gift" size={20} color="#ED6C30" />
-                    <Text style={styles.iconText}>${deal.reward}</Text>
-                </View>
-                <View style={styles.iconTextContainer}>
-                    <FontAwesome5 name="weight" size={20} color="#ED6C30" />
-                    <Text style={styles.iconText}>{deal.weight} KG</Text>
-                </View>
+const DealsCard = ({ deal }) => {
+    // Manually define profile and product images based on deal.userName and deal.productName
+    const profileImages = {
+        "User1": require('../../assets/images/Profile1.jpg'),
+        "User2": require('../../assets/images/Profile4.jpg'),
+        "User3": require('../../assets/images/Profile3.jpg'),
+        "User4": require('../../assets/images/Profile2.jpg'),
+        "User5": require('../../assets/images/Profile5.jpg'),
+        "User6": require('../../assets/images/Profile6.jpg'),
+        "User7": require('../../assets/images/Profile7.jpg'),
+        "User9": require('../../assets/images/Profile9.jpg'),
+        "User10": require('../../assets/images/Profile10.jpg'),
+    };
+
+    const productImages = {
+        "Iphone 13": require('../../assets/images/Iphone13ProMax.png'),
+        "Airpods": require('../../assets/images/airpods.jpeg'),
+        "Camera": require('../../assets/images/camera.jpeg'),
+        "Laptop": require('../../assets/images/Laptop.webp'),
+        "Gaming Console": require('../../assets/images/GamingConsole.jpg'),
+        "Smart Watch": require('../../assets/images/SmartWatch.jpg'),
+        "Tablet": require('../../assets/images/Tablet.jpg'),
+        "Bluetooth Speaker": require('../../assets/images/BluetoothSpeaker.jpg'),
+        "Camera Lens": require('../../assets/images/CameraLens.jpg'),
+        "Drone": require('../../assets/images/Drone.jpg'),
+    };
+
+    return (
+        <View style={styles.card}>
+            <View style={styles.routeContainer}>
+                <FontAwesome6 name="location-dot" size={24} color="#ED6C30" />
+                <Text style={styles.city1}>{deal.from}</Text>
+                <Ionicons name="airplane" size={28} color="#ED6C30" style={styles.iconPlane} />
+                <Text style={styles.city2}>{deal.to}</Text>
             </View>
-            <View style={styles.profileContainer}>
+            <View style={styles.routeContainer}>
+                <Entypo name="back-in-time" size={24} color="#ED6C30" style={styles.icon} />
+                <Text style={styles.date}>{deal.departureDate}</Text>
+            </View>
+            <View style={styles.line} />
+            <View style={styles.dealContainer}>
                 <Image
-                    source={require('../../assets/images/Profile.png')} 
-                    style={styles.profileImage}
+                    source={productImages[deal.productName] || require("../../assets/images/defaultProduct.jpeg")}
+                    style={styles.dealImage}
                 />
-                <View style={styles.profileInfo}>
-                    <View style={styles.ratingContainer}>
-                        <MaterialIcons name="star" size={15} color="#FFB800" />
-                        <Text style={styles.rating}>{deal.rating}</Text>
+                <View style={styles.dealInfo}>
+                    <Text style={styles.productName} numberOfLines={1} ellipsizeMode="tail">{deal.productName}</Text>
+                    <View style={styles.iconTextContainer}>
+                        <FontAwesome5 name="gift" size={20} color="#ED6C30" />
+                        <Text style={styles.iconText}>${deal.reward}</Text>
                     </View>
-                    <Text style={styles.name}>{deal.userName}</Text>
+                    <View style={styles.iconTextContainer}>
+                        <FontAwesome5 name="weight" size={20} color="#ED6C30" />
+                        <Text style={styles.iconText}>{deal.weight} KG</Text>
+                    </View>
+                </View>
+                <View style={styles.profileContainer}>
+                    <Image
+                        source={profileImages[deal.label] || require('../../assets/images/profilePicture.jpeg')}
+                        style={styles.profileImage}
+                    />
+                    <View style={styles.profileInfo}>
+                        <View style={styles.ratingContainer}>
+                            <MaterialIcons name="star" size={15} color="#FFB800" />
+                            <Text style={styles.rating}>{deal.rating}</Text>
+                        </View>
+                        <Text style={styles.name}>{deal.userName}</Text>
+                    </View>
                 </View>
             </View>
         </View>
-    </View>
-);
+    );
+};
+
 
 const styles = StyleSheet.create({
     card: {

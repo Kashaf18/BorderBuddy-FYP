@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { MaterialIcons, Ionicons, FontAwesome5, FontAwesome6, Entypo } from '@expo/vector-icons';
 import { FontFamily, Color } from '../../assets/GlobalStyles';
-import TripsDashboard from './TripsDashboard';
+// import TripsDashboard from './TripsDashboard';
 
 const TripCard = ({ trip, handleRemove, handleEdit }) => (
     <View style={styles.card}>

@@ -25,7 +25,8 @@ const DealsScreen = ({ navigation }) => {
             reward: 30,
             weight: 5.5,
             rating: '(5.0)',
-            userName: 'Kashaf Shahzad'
+            userName: 'Kashaf Shahzad',
+            label: 'User1'
         },
         {
             from: 'Dubai',
@@ -35,19 +36,99 @@ const DealsScreen = ({ navigation }) => {
             reward: 20,
             weight: 1.5,
             rating: '(4.5)',
-            userName: 'Manahil Adil'
+            userName: 'Manahil Adil',
+            label: 'User2'
         },
         {
             from: 'Milan',
-            to: 'NewYoork',
+            to: 'New York',
             departureDate: 'Mon 29th April 12:40 AM',
             productName: 'Camera',
             reward: 40,
             weight: 2.5,
             rating: '(5.0)',
-            userName: 'Kashaf Shahzad'
+            userName: 'Aisha Talat',
+            label: 'User3'
+        },
+        {
+            from: 'Paris',
+            to: 'London',
+            departureDate: 'Wed 1st May 10:00 AM',
+            productName: 'Laptop',
+            reward: 50,
+            weight: 3.0,
+            rating: '(4.8)',
+            userName: 'Sarah Johnson',
+            label: 'User4'
+        },
+        {
+            from: 'Tokyo',
+            to: 'Los Angeles',
+            departureDate: 'Fri 3rd May 11:30 PM',
+            productName: 'Gaming Console',
+            reward: 45,
+            weight: 4.2,
+            rating: '(4.7)',
+            userName: 'David Lee',
+            label: 'User5'
+        },
+        {
+            from: 'New Delhi',
+            to: 'Singapore',
+            departureDate: 'Sun 5th May 6:00 AM',
+            productName: 'Smart Watch',
+            reward: 15,
+            weight: 0.8,
+            rating: '(4.6)',
+            userName: 'Priya Kumar',
+            label: 'User6'
+        },
+        {
+            from: 'Berlin',
+            to: 'Amsterdam',
+            departureDate: 'Mon 6th May 2:00 PM',
+            productName: 'Tablet',
+            reward: 35,
+            weight: 2.0,
+            rating: '(4.9)',
+            userName: 'Markus Müller',
+            label: 'User7'
+        },
+        {
+            from: 'Rome',
+            to: 'Barcelona',
+            departureDate: 'Tue 7th May 3:30 PM',
+            productName: 'Bluetooth Speaker',
+            reward: 25,
+            weight: 1.2,
+            rating: '(4.7)',
+            userName: 'Laura Rossi',
+            label: 'User8'
+        },
+        {
+            from: 'Bangkok',
+            to: 'Sydney',
+            departureDate: 'Thu 9th May 9:00 AM',
+            productName: 'Camera Lens',
+            reward: 60,
+            weight: 3.5,
+            rating: '(4.9)',
+            userName: 'Ananda Chai',
+            label: 'User9'
+        },
+        {
+            from: 'Toronto',
+            to: 'Miami',
+            departureDate: 'Sat 11th May 7:00 PM',
+            productName: 'Drone',
+            reward: 70,
+            weight: 6.0,
+            rating: '(5.0)',
+            userName: 'Emily Williams',
+            label: 'User10'
         },
     ];
+    
 
     return (
         <KeyboardAvoidingView
@@ -91,8 +172,8 @@ const DealsScreen = ({ navigation }) => {
                 <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('TripsDashboard')}>
                     <Icon name="luggage" size={35} color="#fff" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.tabButton}>
-                    <Icon name="email" size={35} color="#fff" />
+                <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('ReportTheft')}>
+                <Ionicons name="shield-sharp" size={35} color="#fff"  />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('ProfileScreen')}>
                     <Icon name="person" size={35} color="#fff" />

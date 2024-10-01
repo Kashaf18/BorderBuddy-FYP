@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, FlatList,Color } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, FlatList, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
@@ -7,23 +7,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Dropdown } from 'react-native-element-dropdown';
 import axios from 'axios';
 import moment from 'moment';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-const BackArrow = ({ navigation }) => {
-  return (
-    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-      <Image source={require('../../assets/images/back-icon.png')} style={styles.backIcon} />
-    </TouchableOpacity>
-  );
-};
-
-const EditTripModal = ({ route, navigation }) => {
-  const [tripData, setTripData] = useState(null);
-  const [fromLocation, setFromLocation] = useState(''); 
-  const [toLocation, setToLocation] = useState(''); 
-  const [fromCountrySuggestions, setFromCountrySuggestions] = useState([]);
-  const [fromCitySuggestions, setFromCitySuggestions] = useState([]);
-  const [toCountrySuggestions, setToCountrySuggestions] = useState([]);
-  const [toCitySuggestions, setToCitySuggestions] = useState([]);
+const EditTripModal = ({ visible, onClose, tripId, tripData, onSave }) => {
+  const [fromCountry, setFromCountry] = useState('');
+  const [fromCity, setFromCity] = useState('');
+  const [toCountry, setToCountry] = useState('');
+  const [toCity, setToCity] = useState('');
   const [availableWeight, setAvailableWeight] = useState('');
   const [departureDate, setDepartureDate] = useState('');
   const [departureTime, setDepartureTime] = useState('');
@@ -31,96 +21,37 @@ const EditTripModal = ({ route, navigation }) => {
   const [lastName, setLastName] = useState('');
   const [categories, setCategories] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
-  const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-
-  const { tripId } = route.params;
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [fromCountrySuggestions, setFromCountrySuggestions] = useState([]);
+  const [fromCitySuggestions, setFromCitySuggestions] = useState([]);
+  const [toCountrySuggestions, setToCountrySuggestions] = useState([]);
+  const [toCitySuggestions, setToCitySuggestions] = useState([]);
 
   useEffect(() => {
-    const fetchTripData = async () => {
-      try {
-        const tripRef = doc(db, 'trips', tripId);
-        const tripDoc = await getDoc(tripRef);
-        if (tripDoc.exists()) {
-          const data = tripDoc.data();
-          setTripData(data);
-          setFromLocation(data.fromLocation || '');
-          setToLocation(data.toLocation || '');
-          setAvailableWeight(data.availableWeight || '');
-          setDepartureDate(data.departureDate || '');
-          setDepartureTime(data.departureTime || '');
-          setFirstName(data.firstName || '');
-          setLastName(data.lastName || '');
-          setCategories(data.categories || '');
-          setAdditionalInfo(data.additionalInfo || '');
-        }
-      } catch (error) {
-        console.error('Error fetching trip data: ', error);
+    if (tripData) {
+      if (tripData.fromLocation) {
+        const [country, city] = tripData.fromLocation.split(', ');
+        setFromCountry(country || '');
+        setFromCity(city || '');
       }
-    };
+      if (tripData.toLocation) {
+        const [country, city] = tripData.toLocation.split(', ');
+        setToCountry(country || '');
+        setToCity(city || '');
+      }
 
-    fetchTripData();
-  }, [tripId]);
-
-  const handleSaveTrip = async () => {
-    if (!fromLocation || !toLocation || !availableWeight || !departureDate || !departureTime || !firstName || !lastName || !categories) {
-      alert('Please fill all the input fields');
-      return;
+      setAvailableWeight(tripData.availableWeight ? tripData.availableWeight.toString() : '');
+      setDepartureDate(tripData.departureDate || '');
+      setDepartureTime(tripData.departureTime || '');
+      setCategories(tripData.categories || '');
+      setAdditionalInfo(tripData.additionalInfo || '');
     }
-
-    try {
-      const updatedTripData = {
-        fromLocation,
-        toLocation,
-        availableWeight,
-        departureDate,
-        departureTime,
-        firstName,
-        lastName,
-        categories,
-        additionalInfo,
-      };
-
-      const tripRef = doc(db, 'trips', tripId);
-      await setDoc(tripRef, updatedTripData);
-
-      navigation.navigate('TripsDashboard');
-      alert('Trip updated successfully!');
-    } catch (error) {
-      console.error('Error updating trip: ', error);
-      alert('Failed to update trip, please try again.');
-    }
-  };
-
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleConfirm = (date) => {
-    setDepartureDate(moment(date).format('YYYY-MM-DD'));
-    hideDatePicker();
-  };
-
-  const showTimePicker = () => {
-    setIsTimePickerVisible(true);
-  };
-
-  const hideTimePicker = () => {
-    setIsTimePickerVisible(false);
-  };
-
-  const handleTimeConfirm = (time) => {
-    setDepartureTime(moment(time).format('HH:mm'));
-    hideTimePicker();
-  };
+  }, [tripData]);
 
   const fetchPlaces = async (input) => {
     try {
-      const username = "laibasaleem";
+      const username = "laibasaleem"; 
       const response = await axios.get(`http://api.geonames.org/searchJSON?username=${username}&q=${input}&maxRows=10&style=SHORT`);
       return response.data.geonames;
     } catch (error) {
@@ -129,22 +60,57 @@ const EditTripModal = ({ route, navigation }) => {
     }
   };
 
-  const renderSuggestion = ({ item }, setFunction, clearSuggestions, type = 'country') => {
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          if (type === 'city') {
-            setFunction((prev) => `${prev}, ${item.name}`);
-          } else {
-            setFunction(item.name);
-          }
-          clearSuggestions([]);
-        }}
-        style={styles.suggestionItem}
-      >
-        <Text>{item.name}</Text>
-      </TouchableOpacity>
-    );
+  const handleSave = async () => {
+    try {
+      if (!fromCountry || !fromCity || !toCountry || !toCity || !availableWeight || !departureDate || !departureTime || !categories) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      const updatedData = {
+        fromLocation: `${fromCountry}, ${fromCity}`,
+        toLocation: `${toCountry}, ${toCity}`,
+        availableWeight: Number(availableWeight) || 0,
+        departureDate: departureDate || '',
+        departureTime: departureTime || '',
+        categories: categories || '',
+        additionalInfo: additionalInfo || '',
+      };
+
+      const tripRef = doc(db, 'trips', tripId);
+      await updateDoc(tripRef, updatedData);
+
+      alert('Trip updated successfully!');
+      onSave(tripId, updatedData); // Pass tripId along with updatedData
+      onClose(); // Close the modal after saving
+    } catch (error) {
+      console.error('Error updating trip: ', error);
+      alert('Failed to update trip, please try again.');
+    }
+  };
+
+  const renderSuggestion = ({ item }, setFunction, clearSuggestions) => (
+    <TouchableOpacity
+      onPress={() => {
+        setFunction(item.name);
+        clearSuggestions([]);
+      }}
+      style={styles.suggestionItem}
+    >
+      <Text>{item.name}</Text>
+    </TouchableOpacity>
+  );
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || new Date();
+    setShowDatePicker(false);
+    setDepartureDate(moment(currentDate).format('DD/MM/YYYY'));
+  };
+
+  const handleTimeChange = (event, selectedTime) => {
+    const currentTime = selectedTime || new Date();
+    setShowTimePicker(false);
+    setDepartureTime(moment(currentTime).format('HH:mm'));
   };
 
   const categoryOptions = [
@@ -164,242 +130,130 @@ const EditTripModal = ({ route, navigation }) => {
     { label: 'Others', value: '14' },
   ];
 
-  if (!tripData) return null; 
+  const renderInput = (value, setter, placeholder, icon, suggestions, suggestionSetter) => (
+    <View>
+      <View style={styles.inputContainer}>
+        {icon}
+        <TextInput
+          value={value}
+          onChangeText={async (text) => {
+            setter(text);
+            if (text.length > 2) {
+              const places = await fetchPlaces(text);
+              suggestionSetter(places);
+            } else {
+              suggestionSetter([]);
+            }
+          }}
+          placeholder={placeholder}
+          style={styles.inputText}
+        />
+      </View>
+      {suggestions.length > 0 && (
+        <FlatList
+          data={suggestions}
+          renderItem={(item) => renderSuggestion(item, setter, suggestionSetter)}
+          keyExtractor={(item) => item.geonameId.toString()}
+          style={styles.suggestionsContainer}
+        />
+      )}
+    </View>
+  );
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View>
-          <BackArrow navigation={navigation} />
-          <Image source={require("../../assets/images/TopImage.png")} style={styles.topImage} />
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Edit Trip</Text>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {renderInput(fromCountry, setFromCountry, "From Country", <Icon name="flight-takeoff" size={24} color="#ED6C30" style={styles.icon} />, fromCountrySuggestions, setFromCountrySuggestions)}
+            {renderInput(fromCity, setFromCity, "From City", <MaterialCommunityIcons name="city" size={24} color="#ED6C30" style={styles.icon} />, fromCitySuggestions, setFromCitySuggestions)}
+            {renderInput(toCountry, setToCountry, "To Country", <Icon name="flight-land" size={24} color="#ED6C30" style={styles.icon} />, toCountrySuggestions, setToCountrySuggestions)}
+            {renderInput(toCity, setToCity, "To City", <MaterialCommunityIcons name="city" size={24} color="#ED6C30" style={styles.icon} />, toCitySuggestions, setToCitySuggestions)}
+
+            {/* Available Weight Field */}
+            <View style={styles.inputContainer}>
+              <MaterialCommunityIcons name="weight-kilogram" size={24} color="#ED6C30" style={styles.icon} />
+              <TextInput
+                value={availableWeight}
+                onChangeText={setAvailableWeight}
+                placeholder="Available Weight (kg)"
+                style={styles.inputText}
+                keyboardType="numeric"
+              />
+            </View>
+
+            <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.inputContainer}>
+              <Icon name="calendar-today" size={24} color="#ED6C30" style={styles.icon} />
+              <Text style={[styles.inputText, { color: departureDate ? '#333' : '#999' }]}>{departureDate || 'Select Departure Date'}</Text>
+            </TouchableOpacity>
+
+            {/* Date Picker */}
+            {showDatePicker && (
+              <DateTimePicker
+                value={departureDate ? new Date(moment(departureDate, 'DD/MM/YYYY').toDate()) : new Date()}
+                mode="date"
+                display="default"
+                onChange={handleDateChange}
+              />
+            )}
+            
+            <TouchableOpacity onPress={() => setShowTimePicker(true)} style={styles.inputContainer}>
+              <Icon name="access-time" size={24} color="#ED6C30" style={styles.icon} />
+              <Text style={[styles.inputText, { color: departureTime ? '#333' : '#999' }]}>{departureTime || 'Select Departure Time'}</Text>
+            </TouchableOpacity>
+
+            {/* Time Picker */}
+            {showTimePicker && (
+              <DateTimePicker
+                value={departureTime ? new Date(moment(departureTime, 'HH:mm').toDate()) : new Date()}
+                mode="time"
+                display="default"
+                onChange={handleTimeChange}
+              />
+            )}
+
+            {/* Category Field with Icon */}
+            <View style={styles.inputContainer}>
+              <MaterialCommunityIcons name="format-list-checks" size={24} color="#ED6C30" style={styles.icon} />
+              <Dropdown
+                data={categoryOptions}
+                labelField="label"
+                valueField="value"
+                value={categories}
+                onChange={(item) => setCategories(item.value)}
+                style={styles.dropdown}
+                placeholder="Select Category"
+              />
+            </View>
+
+            {/* Additional Information Field with Icon */}
+            <View style={styles.inputContainer}>
+              <MaterialCommunityIcons name="note-text" size={24} color="#ED6C30" style={styles.icon} />
+              <TextInput
+                value={additionalInfo}
+                onChangeText={setAdditionalInfo}
+                placeholder="Additional Information"
+                style={styles.inputText}
+               
+              />
+            </View>
+            
+
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Text style={styles.saveButtonText}>Save</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
-        <Text style={styles.heading}>Edit Trip</Text>
-
-        {/* From Location (Country + City) */}
-        <View style={styles.inputContainer}>
-          <MaterialIcons name="flight-takeoff" size={24} color="#ED6C30" style={styles.icon} />
-          <TextInput
-            value={fromLocation}
-            onChangeText={async (text) => {
-              setFromLocation(text);
-              if (text.length > 2) {
-                const places = await fetchPlaces(text);
-                setFromCountrySuggestions(places);
-              } else {
-                setFromCountrySuggestions([]);
-              }
-            }}
-            placeholder="From (Country, City)"
-            placeholderTextColor="#8F8D8D"
-            style={styles.inputText}
-          />
-        </View>
-
-        {/* Suggestions for From Country */}
-        {fromCountrySuggestions.length > 0 && (
-          <View style={styles.suggestionsContainer}>
-            <FlatList
-              data={fromCountrySuggestions}
-              renderItem={(item) => renderSuggestion(item, setFromLocation, setFromCountrySuggestions)}
-              keyExtractor={(item) => item.geonameId.toString()}
-            />
-          </View>
-        )}
-
-        {/* From City */}
-        {fromLocation && !fromLocation.includes(',') && (
-          <View style={styles.inputContainer}>
-            <MaterialCommunityIcons name="city" size={24} color="#ED6C30" style={styles.icon} />
-            <TextInput
-              placeholder="From (City)"
-              placeholderTextColor="#8F8D8D"
-              onChangeText={async (text) => {
-                if (text.length > 2) {
-                  const places = await fetchPlaces(text);
-                  setFromCitySuggestions(places);
-                } else {
-                  setFromCitySuggestions([]);
-                }
-              }}
-              style={styles.inputText}
-            />
-          </View>
-        )}
-
-        {/* Suggestions for From City */}
-        {fromCitySuggestions.length > 0 && (
-          <View style={styles.suggestionsContainer}>
-            <FlatList
-              data={fromCitySuggestions}
-              renderItem={(item) => renderSuggestion(item, setFromLocation, setFromCitySuggestions, 'city')}
-              keyExtractor={(item) => item.geonameId.toString()}
-            />
-          </View>
-        )}
-
-        {/* To Location (Country + City) */}
-        <View style={styles.inputContainer}>
-          <MaterialIcons name="flight-land" size={24} color="#ED6C30" style={styles.icon} />
-          <TextInput
-            value={toLocation}
-            onChangeText={async (text) => {
-              setToLocation(text);
-              if (text.length > 2) {
-                const places = await fetchPlaces(text);
-                setToCountrySuggestions(places);
-              } else {
-                setToCountrySuggestions([]);
-              }
-            }}
-            placeholder="To (Country, City)"
-            placeholderTextColor="#8F8D8D"
-            style={styles.inputText}
-          />
-        </View>
-
-        {/* Suggestions for To Country */}
-        {toCountrySuggestions.length > 0 && (
-          <View style={styles.suggestionsContainer}>
-            <FlatList
-              data={toCountrySuggestions}
-              renderItem={(item) => renderSuggestion(item, setToLocation, setToCountrySuggestions)}
-              keyExtractor={(item) => item.geonameId.toString()}
-            />
-          </View>
-        )}
-
-        {/* To City */}
-        {toLocation && !toLocation.includes(',') && (
-          <View style={styles.inputContainer}>
-            <MaterialCommunityIcons name="city" size={24} color="#ED6C30" style={styles.icon} />
-            <TextInput
-              placeholder="To (City)"
-              placeholderTextColor="#8F8D8D"
-              onChangeText={async (text) => {
-                if (text.length > 2) {
-                  const places = await fetchPlaces(text);
-                  setToCitySuggestions(places);
-                } else {
-                  setToCitySuggestions([]);
-                }
-              }}
-              style={styles.inputText}
-            />
-          </View>
-        )}
-
-        {/* Suggestions for To City */}
-        {toCitySuggestions.length > 0 && (
-          <View style={styles.suggestionsContainer}>
-            <FlatList
-              data={toCitySuggestions}
-              renderItem={(item) => renderSuggestion(item, setToLocation, setToCitySuggestions, 'city')}
-              keyExtractor={(item) => item.geonameId.toString()}
-            />
-          </View>
-        )}
-
-        {/* Weight */}
-        <View style={styles.inputContainer}>
-          <AntDesign name="weightl" size={24} color="#ED6C30" style={styles.icon} />
-          <TextInput
-            value={availableWeight}
-            onChangeText={setAvailableWeight}
-            placeholder="Available Weight"
-            placeholderTextColor="#8F8D8D"
-            keyboardType="numeric"
-            style={styles.inputText}
-          />
-        </View>
-
-        {/* Departure Date */}
-        <TouchableOpacity onPress={showDatePicker} style={styles.dateContainer}>
-          <MaterialIcons name="calendar-today" size={24} color="#ED6C30" style={styles.icon} />
-          <Text style={styles.dateText}>{departureDate || 'Departure Date'}</Text>
-        </TouchableOpacity>
-
-        <DateTimePickerModal
-          isVisible={isDatePickerVisible}
-          mode="date"
-          onConfirm={handleConfirm}
-          onCancel={hideDatePicker}
-        />
-
-        {/* Departure Time */}
-        <TouchableOpacity onPress={showTimePicker} style={styles.dateContainer}>
-          <MaterialCommunityIcons name="clock" size={24} color="#ED6C30" style={styles.icon} />
-          <Text style={styles.dateText}>{departureTime || 'Departure Time'}</Text>
-        </TouchableOpacity>
-
-        <DateTimePickerModal
-          isVisible={isTimePickerVisible}
-          mode="time"
-          onConfirm={handleTimeConfirm}
-          onCancel={hideTimePicker}
-        />
-
-        {/* First Name */}
-        <View style={styles.inputContainer}>
-          <FontAwesome6 name="user" size={24} color="#ED6C30" style={styles.icon} />
-          <TextInput
-            value={firstName}
-            onChangeText={setFirstName}
-            placeholder="First Name"
-            placeholderTextColor="#8F8D8D"
-            style={styles.inputText}
-          />
-        </View>
-
-        {/* Last Name */}
-        <View style={styles.inputContainer}>
-          <FontAwesome6 name="user" size={24} color="#ED6C30" style={styles.icon} />
-          <TextInput
-            value={lastName}
-            onChangeText={setLastName}
-            placeholder="Last Name"
-            placeholderTextColor="#8F8D8D"
-            style={styles.inputText}
-          />
-        </View>
-
-        {/* Categories */}
-        <View style={styles.inputContainer}>
-          <AntDesign name="tags" size={24} color="#ED6C30" style={styles.icon} />
-          <Dropdown
-            data={categoryOptions}
-            labelField="label"
-            valueField="value"
-            placeholder="Select Category"
-            value={categories}
-            onChange={(item) => setCategories(item.value)}
-            style={styles.dropdown}
-            selectedTextStyle={styles.dropdownText}
-            iconStyle={styles.dropdownIcon}
-          />
-        </View>
-
-        {/* Additional Info */}
-        <View style={styles.inputContainer}>
-          <MaterialIcons name="info-outline" size={24} color="#ED6C30" style={styles.icon} />
-          <TextInput
-            value={additionalInfo}
-            onChangeText={setAdditionalInfo}
-            placeholder="Additional Info"
-            placeholderTextColor="#8F8D8D"
-            style={[styles.inputText, styles.additionalInfoInput]}
-            multiline
-            numberOfLines={4}
-          />
-        </View>
-
-        <TouchableOpacity style={styles.saveButton} onPress={handleSaveTrip}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </View>
+    </Modal>
   );
 };
-
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -412,12 +266,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginHorizontal: 20,
     padding: 20,
+    maxHeight: '80%',
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
     color: '#333',
+    
   },
   inputContainer: {
     flexDirection: 'row',
@@ -456,16 +313,20 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: '#ED6C30',
-    borderRadius: 5,
+    borderRadius: 44,
     paddingVertical: 10,
     alignItems: 'center',
+    width: 200,
+    height: 40,
+   marginTop: 5,
+   alignSelf: 'center',
   },
+  
   saveButtonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
   },
 });
-
 
 export default EditTripModal;

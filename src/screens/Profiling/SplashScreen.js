@@ -5,16 +5,16 @@ const { width, height } = Dimensions.get('window');
 
 const SplashScreen = ({ navigation }) => {
    
-    console.log('Navigation:', navigation);
+    // console.log('Navigation:', navigation);
 
   
-    console.log('TopImage:', require("../../assets/images/TopImage.png"));
-    console.log('Arrow Image:', require("../../assets/images/imgArrowright.png"));
-    console.log('FontFamily:', FontFamily);
-    console.log('FontSize:', FontSize);
-    console.log('Color:', Color);
-    console.log('Padding:', Padding);
-    console.log('Border:', Border);
+    // console.log('TopImage:', require("../../assets/images/TopImage.png"));
+    // console.log('Arrow Image:', require("../../assets/images/imgArrowright.png"));
+    // console.log('FontFamily:', FontFamily);
+    // console.log('FontSize:', FontSize);
+    // console.log('Color:', Color);
+    // console.log('Padding:', Padding);
+    // console.log('Border:', Border);
 
     const onTapGetStarted = () => {
       

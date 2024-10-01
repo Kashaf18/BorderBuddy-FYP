@@ -11,6 +11,9 @@ import TripsDashboard from '../screens/TravelManagement/TripsDashboard';
 import CreateTripPlan from '../screens/TravelManagement/CreateTripPlan';
 import DealsScreen from "../screens/TravelManagement/DealsScreen";
 import MatchingShipmentsScreen from "../screens/TravelManagement/MatchingShipmentsScreen";
+import ReportTheft from "../screens/TheftHandling/ReportTheft";
+import GenerateReport from "../screens/TheftHandling/GenerateReport";
+import ConnectNearestPoliceStations from "../screens/TheftHandling/ConnectNearestPoliceStations";
 import { Ionicons } from '@expo/vector-icons';
 import * as Font from 'expo-font';
 import { View } from "react-native";
@@ -27,6 +30,7 @@ const fetchFonts = () => {
         'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
         'Kanit-Medium': require('../assets/fonts/Kanit-Medium.ttf'),
         'Kanit-Regular': require('../assets/fonts/Kanit-Regular.ttf'),
+        'Kanit-ExtraLight': require('../assets/fonts/Kanit-ExtraLight.ttf'),
     });
 };
 
@@ -37,7 +41,7 @@ function AppNavigation() {
 
 
     useEffect(() => {
-        // Async function to prevent auto-hiding and load fonts
+       
         async function prepare() {
             try {
                 await SplashScreen.preventAutoHideAsync(); // Prevent splash screen from hiding
@@ -97,6 +101,21 @@ function AppNavigation() {
                 <Stack.Screen
                     name="MatchingShipmentsScreen"
                     component={MatchingShipmentsScreen}
+                    options={{ headerShown: false, headerBackVisible: false }}
+                />
+                <Stack.Screen
+                    name="ReportTheft"
+                    component={ReportTheft}
+                    options={{ headerShown: false, headerBackVisible: false }}
+                />
+                 <Stack.Screen
+                    name="GenerateReport"
+                    component={GenerateReport}
+                    options={{ headerShown: false, headerBackVisible: false }}
+                />
+                    <Stack.Screen
+                    name="ConnectNearestPoliceStations"
+                    component={ConnectNearestPoliceStations}
                     options={{ headerShown: false, headerBackVisible: false }}
                 />
 

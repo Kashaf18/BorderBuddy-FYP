@@ -7,13 +7,16 @@ import TripCard from './TripCard';
 import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import EditTripModal from './EditTripModal'; 
+import PickupAvailabilityModal from './PickupAvailabilityModal'; // Adjust if necessary
+
 
 const TripsDashboard = ({ navigation }) => {
     const [trips, setTrips] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
     const [tripToEdit, setTripToEdit] = useState(null);
+    const [pickupModalVisible, setPickupModalVisible] = useState(false);
+    const [selectedTrip, setSelectedTrip] = useState(null);
 
-    
     useEffect(() => {
         const fetchTrips = async () => {
             try {
@@ -48,38 +51,45 @@ const TripsDashboard = ({ navigation }) => {
         );
     };
 
-   
     const handleRemove = async (tripId) => {
         try {
             await deleteDoc(doc(db, 'trips', tripId));
-            setTrips(trips.filter(trip => trip.id !== tripId)); 
+            setTrips(trips.filter(trip => trip.id !== tripId));
         } catch (error) {
             console.error("Error deleting trip: ", error);
         }
     };
 
-   
     const handleEdit = (trip) => {
         setTripToEdit(trip);
         setModalVisible(true);
     };
 
-    
     const handleCloseModal = () => {
         setModalVisible(false);
         setTripToEdit(null);
     };
 
-   
-    const handleUpdate = async (tripId, updatedData) => {
-        try {
-            await updateDoc(doc(db, 'trips', tripId), updatedData);
-           
-            setTrips(trips.map(trip => (trip.id === tripId ? { ...trip, ...updatedData } : trip)));
-            handleCloseModal();
-        } catch (error) {
-            console.error("Error updating trip: ", error);
-        }
+    const handleUpdate = (tripId, updatedData) => {
+        setTrips(trips.map(trip => (trip.id === tripId ? { ...trip, ...updatedData } : trip)));
+        handleCloseModal(); // Close the modal after saving
+    };
+
+    const handlePickupClick = (trip) => {
+        setSelectedTrip(trip);
+        setPickupModalVisible(true); // Show the pickup availability modal
+    };
+
+    const handleClosePickupModal = () => {
+        setPickupModalVisible(false);
+        setSelectedTrip(null);
+    };
+
+    const handleSavePickupDates = (tripId, dates) => {
+        // Logic to save pickup availability dates in Firebase
+        console.log('Saving pickup dates for trip:', tripId, dates);
+        Alert.alert('Pickup availability saved successfully!');
+        handleClosePickupModal(); // Close the modal after saving
     };
 
     return (
@@ -100,7 +110,7 @@ const TripsDashboard = ({ navigation }) => {
                         <Text style={styles.buttonText}>Deals</Text>
                     </TouchableOpacity>
                 </View>
-               
+
                 {trips.length > 0 ? (
                     <FlatList
                         data={trips}
@@ -111,6 +121,7 @@ const TripsDashboard = ({ navigation }) => {
                                     trip={item} 
                                     handleRemove={() => confirmDelete(item.id)} 
                                     handleEdit={() => handleEdit(item)} 
+                                    handlePickup={() => handlePickupClick(item)} // Add pickup handler
                                 />
                             </View>
                         )}
@@ -145,14 +156,22 @@ const TripsDashboard = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
 
-          
             {tripToEdit && (
                 <EditTripModal
                     visible={isModalVisible}
                     onClose={handleCloseModal}
                     tripId={tripToEdit.id}
                     tripData={tripToEdit}
-                    onSave={(updatedData) => handleUpdate(tripToEdit.id, updatedData)}
+                    onSave={handleUpdate} 
+                />
+            )}
+
+            {selectedTrip && (
+                <PickupAvailabilityModal
+                    visible={pickupModalVisible}
+                    onClose={handleClosePickupModal}
+                    tripData={selectedTrip}
+                    onSave={handleSavePickupDates} 
                 />
             )}
         </KeyboardAvoidingView>
